@@ -1,21 +1,85 @@
-import { CartItem, Coupon } from "../../../types";
+import { CartItem, Coupon, Product } from "../../../types";
 
 export const calculateItemTotal = (item: CartItem) => {
-  return 0;
+  const discountRate = getMaxApplicableDiscount(item);
+  return item.product.price * item.quantity * (1 - discountRate);
 };
 
 export const getMaxApplicableDiscount = (item: CartItem) => {
-  return 0;
+  const { quantity } = item;
+
+  return item.product.discounts.reduce(
+    (maxDiscount, discount) =>
+      quantity >= discount.quantity && discount.rate > maxDiscount
+        ? discount.rate
+        : maxDiscount,
+    0
+  );
 };
 
-export const calculateCartTotal = (cart: CartItem[], selectedCoupon: Coupon | null) => {
+const applyCouponDiscount = (total: number, coupon: Coupon | null): number => {
+  if (!coupon) return total;
+  const { discountType, discountValue } = coupon;
+
+  switch (discountType) {
+    case "amount":
+      return Math.max(0, total - discountValue);
+    case "percentage":
+      return total * (1 - discountValue / 100);
+    default:
+      return total;
+  }
+};
+
+export const calculateCartTotal = (
+  cart: CartItem[],
+  selectedCoupon: Coupon | null
+) => {
+  let totalBeforeDiscount = 0;
+  let totalAfterDiscount = 0;
+
+  cart.forEach((item) => {
+    const { product, quantity } = item;
+    const { price } = product;
+
+    totalBeforeDiscount += price * quantity;
+    totalAfterDiscount += calculateItemTotal(item);
+  });
+
+  totalAfterDiscount = applyCouponDiscount(totalAfterDiscount, selectedCoupon);
+  const totalDiscount = totalBeforeDiscount - totalAfterDiscount;
+
   return {
-    totalBeforeDiscount: 0,
-    totalAfterDiscount: 0,
-    totalDiscount: 0,
+    totalBeforeDiscount,
+    totalAfterDiscount,
+    totalDiscount,
   };
 };
 
-export const updateCartItemQuantity = (cart: CartItem[], productId: string, newQuantity: number): CartItem[] => {
-  return []
+export const updateCartItemQuantity = (
+  cart: CartItem[],
+  productId: string,
+  newQuantity: number
+): CartItem[] => {
+  const existingItem = cart.find((item) => item.product.id === productId);
+
+  if (existingItem) {
+    return cart
+      .map((item) =>
+        item.product.id === productId
+          ? {
+              ...item,
+              quantity: Math.min(newQuantity, item.product.stock),
+            }
+          : item
+      )
+      .filter((item) => item.quantity > 0);
+  }
+
+  return cart;
+};
+
+export const getRemainingStock = (cart: CartItem[], product: Product) => {
+  const cartItem = cart.find((item) => item.product.id === product.id);
+  return product.stock - (cartItem?.quantity || 0);
 };
