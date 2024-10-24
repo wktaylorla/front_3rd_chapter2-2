@@ -1,44 +1,49 @@
 import { useState } from "react";
+
 import { Coupon, CouponDiscountType } from "../../types";
 
 interface Props {
   onCouponAdd: (newCoupon: Coupon) => void;
 }
 
+const INITIAL_COUPON = {
+  name: "",
+  code: "",
+  discountType: "percentage",
+  discountValue: 0,
+} as const;
+
 export const useCouponManager = ({ onCouponAdd }: Props) => {
-  const [newCoupon, setNewCoupon] = useState<Coupon>({
-    name: "",
-    code: "",
-    discountType: "percentage",
-    discountValue: 0,
-  });
+  const [newCoupon, setNewCoupon] = useState<Coupon>(INITIAL_COUPON);
 
   const handleAddCoupon = () => {
     onCouponAdd(newCoupon);
-    setNewCoupon({
-      name: "",
-      code: "",
-      discountType: "percentage",
-      discountValue: 0,
-    });
+    setNewCoupon(INITIAL_COUPON);
+  };
+
+  const handleCouponUpdate = <K extends keyof Coupon>(
+    key: K,
+    value: Coupon[K]
+  ) => {
+    setNewCoupon({ ...newCoupon, [key]: value });
   };
 
   const handleCouponNameUpdate = (newName: string) => {
-    setNewCoupon({ ...newCoupon, name: newName });
+    handleCouponUpdate("name", newName);
   };
 
   const handleCouponCodeUpdate = (newCode: string) => {
-    setNewCoupon({ ...newCoupon, code: newCode });
+    handleCouponUpdate("code", newCode);
   };
 
   const handleCouponDiscountTypeUpdate = (
     newDiscountType: CouponDiscountType
   ) => {
-    setNewCoupon({ ...newCoupon, discountType: newDiscountType });
+    handleCouponUpdate("discountType", newDiscountType);
   };
 
   const handleCouponDiscountValueUpdate = (newDiscountValue: number) => {
-    setNewCoupon({ ...newCoupon, discountValue: newDiscountValue });
+    handleCouponUpdate("discountValue", newDiscountValue);
   };
 
   return {
