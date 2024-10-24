@@ -1,4 +1,4 @@
-import ProductManageSection from "./Admin/ProductManageSection.tsx";
+import ProductManageSection from "./Admin/ProductManageSection";
 import CouponManageSection from "./Admin/CouponManageSection.tsx";
 
 import { Coupon, Product } from "../../types.ts";
