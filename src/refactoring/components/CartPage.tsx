@@ -83,7 +83,11 @@ export const CartPage = ({ products, coupons }: Props) => {
             >
               <option value="">쿠폰 선택</option>
               {coupons.map((coupon, index) => (
-                <CouponItem coupon={coupon} index={index} />
+                <CouponItem
+                  key={`coupon-option-${index}`}
+                  coupon={coupon}
+                  index={index}
+                />
               ))}
             </select>
             {selectedCoupon && <SelectedCoupon coupon={selectedCoupon} />}
