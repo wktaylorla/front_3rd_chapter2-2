@@ -10,9 +10,12 @@ import {
 } from "@testing-library/react";
 import { CartPage } from "../../refactoring/components/CartPage";
 import { AdminPage } from "../../refactoring/components/AdminPage";
-import { Coupon, Product } from "../../types";
-import { useAccordion, useCouponManager } from "../../refactoring/hooks";
-import { getProductMaxDiscount } from "../../refactoring/hooks/utils/cartUtils";
+import { CartItem, Coupon, Product } from "../../types";
+import { useAccordion } from "../../refactoring/hooks";
+import {
+  getAppliedDiscount,
+  getProductMaxDiscount,
+} from "../../refactoring/hooks/utils/cartUtils";
 
 const mockProducts: Product[] = [
   {
@@ -318,6 +321,35 @@ describe("advanced > ", () => {
         expect(getProductMaxDiscount([discountA, discountB, discountC])).toBe(
           10
         );
+      });
+    });
+
+    describe("getAppliedDiscount", () => {
+      const mockProduct: Product = {
+        id: "p1",
+        name: "상품1",
+        price: 10000,
+        stock: 20,
+        discounts: [
+          { quantity: 10, rate: 0.1 },
+          { quantity: 13, rate: 0.3 },
+          { quantity: 15, rate: 0.2 },
+        ],
+      };
+      const mockCart: CartItem = { product: mockProduct, quantity: 4 };
+
+      test("할인이 가능한 수량보다 적을시 할인률이 적용되지 않는다.", () => {
+        expect(getAppliedDiscount(mockCart)).toBe(0);
+      });
+
+      test("할인에 해당하는 만큼의 양을 구매할 시 할인이 적용된다.", () => {
+        expect(getAppliedDiscount({ ...mockCart, quantity: 10 })).toBe(0.1);
+        expect(getAppliedDiscount({ ...mockCart, quantity: 13 })).toBe(0.3);
+      });
+
+      test("할인의 조건이 중복으로 해당될시 최대할인으로 적용된다.", () => {
+        expect(getAppliedDiscount({ ...mockCart, quantity: 13 })).toBe(0.3);
+        expect(getAppliedDiscount({ ...mockCart, quantity: 15 })).toBe(0.3);
       });
     });
   });

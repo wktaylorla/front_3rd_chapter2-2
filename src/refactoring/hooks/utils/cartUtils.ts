@@ -89,3 +89,17 @@ export const getProductMaxDiscount = (
 ) => {
   return discounts.reduce((max, discount) => Math.max(max, discount.rate), 0);
 };
+
+export const getAppliedDiscount = (item: CartItem) => {
+  const { quantity: itemQuantity, product } = item;
+  const { discounts } = product;
+  let appliedDiscount = 0;
+
+  for (const discount of discounts) {
+    if (itemQuantity >= discount.quantity) {
+      appliedDiscount = Math.max(appliedDiscount, discount.rate);
+    }
+  }
+
+  return appliedDiscount;
+};

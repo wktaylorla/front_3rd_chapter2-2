@@ -1,3 +1,5 @@
+import { getAppliedDiscount } from "../../hooks/utils/cartUtils";
+
 import { CartItem } from "../../../types";
 
 interface Props {
@@ -5,20 +7,6 @@ interface Props {
   removeFromCart: (productId: string) => void;
   updateQuantity: (productId: string, newQuantity: number) => void;
 }
-
-const getAppliedDiscount = (item: CartItem) => {
-  const { quantity: itemQuantity, product } = item;
-  const { discounts } = product;
-  let appliedDiscount = 0;
-
-  for (const discount of discounts) {
-    if (itemQuantity >= discount.quantity) {
-      appliedDiscount = Math.max(appliedDiscount, discount.rate);
-    }
-  }
-
-  return appliedDiscount;
-};
 
 const CartList = ({ cart, removeFromCart, updateQuantity }: Props) => {
   return cart.map((item) => {
