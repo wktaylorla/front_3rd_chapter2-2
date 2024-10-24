@@ -11,7 +11,8 @@ import {
 import { CartPage } from "../../refactoring/components/CartPage";
 import { AdminPage } from "../../refactoring/components/AdminPage";
 import { Coupon, Product } from "../../types";
-import { useAccordion } from "../../refactoring/hooks";
+import { useAccordion, useCouponManager } from "../../refactoring/hooks";
+import { getProductMaxDiscount } from "../../refactoring/hooks/utils/cartUtils";
 
 const mockProducts: Product[] = [
   {
@@ -304,6 +305,20 @@ describe("advanced > ", () => {
       });
 
       expect(result.current.openProductIds).toStrictEqual(new Set());
+    });
+  });
+
+  describe("utils", () => {
+    describe("getProductMaxDiscount", () => {
+      const discountA = { quantity: 10, rate: 10 };
+      const discountB = { quantity: 3, rate: 5 };
+      const discountC = { quantity: 17, rate: 7 };
+
+      test("할인의 최대치를 얻는다.", () => {
+        expect(getProductMaxDiscount([discountA, discountB, discountC])).toBe(
+          10
+        );
+      });
     });
   });
 });

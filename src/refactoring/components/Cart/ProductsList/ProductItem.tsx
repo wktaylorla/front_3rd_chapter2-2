@@ -1,3 +1,5 @@
+import { getProductMaxDiscount } from "../../../hooks/utils/cartUtils";
+
 import { Product } from "../../../../types";
 
 interface Props {
@@ -5,10 +7,6 @@ interface Props {
   remainingStock: number;
   addToCart: (product: Product) => void;
 }
-
-const getMaxDiscount = (discounts: { quantity: number; rate: number }[]) => {
-  return discounts.reduce((max, discount) => Math.max(max, discount.rate), 0);
-};
 
 const Name = ({ product }: { product: Product }) => {
   return (
@@ -40,7 +38,8 @@ const StockAndMaxDiscount = ({
       </span>
       {isDiscountAble && (
         <span className="ml-2 font-medium text-blue-600">
-          최대 {(getMaxDiscount(product.discounts) * 100).toFixed(0)}% 할인
+          최대 {(getProductMaxDiscount(product.discounts) * 100).toFixed(0)}%
+          할인
         </span>
       )}
     </div>
